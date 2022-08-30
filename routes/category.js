@@ -17,14 +17,6 @@ router.get(`/`, async (req, res) => {
 })
 
 router.get(`/:id`, async (req, res) => {
-    const isFalidId = isValidObjectId(req.params.id)
-    
-    if (!isFalidId) {
-        return res.status(500).json({
-            error: 'Invalid Id'
-        })
-    }
-
     const getCategoryById = await Category.findById(req.params.id)
 
     if (!getCategoryById) {
@@ -60,6 +52,24 @@ router.post(`/`, async (req, res) => {
     }
 
     res.send(addCategory)
+})
+
+router.put(`/:id`, async (req, res) => {
+    const uopdateCategory = await Category.findByIdAndUpdate(req.params.id,{
+        name: req.body.name,
+        color: req.body.color,
+        icon: req.body.icon
+    }, {
+        new: true
+    })
+
+    if (!uopdateCategory) {
+        return res.status(500).json({
+            message: 'The category can not be createrd'
+        })
+    }
+
+    res.send(uopdateCategory)
 })
 
 // My version using async await
