@@ -54,7 +54,7 @@ router.post(`/`, async (req, res) => {
 })
 
 router.put(`/:id`, async (req, res) => {
-    const uopdateCategory = await Category.findByIdAndUpdate(req.params.id,{
+    const updateCategory = await Category.findByIdAndUpdate(req.params.id,{
         name: req.body.name,
         color: req.body.color,
         icon: req.body.icon
@@ -62,13 +62,13 @@ router.put(`/:id`, async (req, res) => {
         new: true
     })
 
-    if (!uopdateCategory) {
+    if (!updateCategory) {
         return res.status(500).json({
             message: 'The category can not be createrd'
         })
     }
 
-    res.send(uopdateCategory)
+    res.send(updateCategory)
 })
 
 // My version using async await

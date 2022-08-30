@@ -97,4 +97,39 @@ router.post(`/`, async (req, res) => {
     // })
 })
 
+router.put(`/:id`, async (req, res) => {
+    try {
+        const checkExistCategory = await Category.findById(req.body.category)
+        if (!checkExistCategory) return res.status(404).json({message: 'Category not found'})
+    } catch(err) {
+        return res.status(500).json({
+            message: 'Invalid id category'
+        })
+    }
+
+    const updateProduct = await Product.findByIdAndUpdate(req.params.id,{
+        name: req.body.name,
+        description: req.body.description,
+        richDescription: req.body.richDescription,
+        image: req.body.image,
+        brand: req.body.brand,
+        price: req.body.price,
+        category: req.body.category,
+        countInStock: req.body.countInStock,
+        rating: req.body.rating,
+        numReviews: req.body.numReviews,
+        isFeatured: req.body.isFeatured
+    }, {
+        new: true
+    })
+
+    if (!updateProduct) {
+        return res.status(500).json({
+            message: 'The product can not be createrd'
+        })
+    }
+
+    res.send(updateProduct)
+})
+
 module.exports = router
