@@ -101,35 +101,57 @@ router.put(`/:id`, async (req, res) => {
     try {
         const checkExistCategory = await Category.findById(req.body.category)
         if (!checkExistCategory) return res.status(404).json({message: 'Category not found'})
+
+        const updateProduct = await Product.findByIdAndUpdate(req.params.id,{
+            name: req.body.name,
+            description: req.body.description,
+            richDescription: req.body.richDescription,
+            image: req.body.image,
+            brand: req.body.brand,
+            price: req.body.price,
+            category: req.body.category,
+            countInStock: req.body.countInStock,
+            rating: req.body.rating,
+            numReviews: req.body.numReviews,
+            isFeatured: req.body.isFeatured
+        }, {
+            new: true
+        })
+    
+        if (!updateProduct) {
+            return res.status(500).json({
+                message: 'Category not found'
+            })
+        }
+    
+        res.send(updateProduct)
     } catch(err) {
         return res.status(500).json({
             message: 'Invalid id category'
         })
     }
+})
 
-    const updateProduct = await Product.findByIdAndUpdate(req.params.id,{
-        name: req.body.name,
-        description: req.body.description,
-        richDescription: req.body.richDescription,
-        image: req.body.image,
-        brand: req.body.brand,
-        price: req.body.price,
-        category: req.body.category,
-        countInStock: req.body.countInStock,
-        rating: req.body.rating,
-        numReviews: req.body.numReviews,
-        isFeatured: req.body.isFeatured
-    }, {
-        new: true
-    })
-
-    if (!updateProduct) {
-        return res.status(500).json({
-            message: 'The product can not be createrd'
+router.delete(`/:id`, (req, res) => {
+    // Both findByIdAndRemove & findByIdAndDelete of them are almost similar except findOneAndRemove uses findAndModify with remove flag and time complexity will be a bit higher compare to findOneAndDelete because you are doing an update. Delete are always faster.
+    Product.findByIdAndDelete(req.params.id).then((product) => {
+        if(product) {
+            return res.status(200).json({
+                success:  true,
+                message: 'The product is deleted'
+            })
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Product not found'
+            })
+        }
+    }).catch((err) => {
+        return res.status(400).json({
+            success: false,
+            error: err
         })
-    }
-
-    res.send(updateProduct)
+    })
 })
 
 module.exports = router
