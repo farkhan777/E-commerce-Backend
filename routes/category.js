@@ -16,6 +16,26 @@ router.get(`/`, async (req, res) => {
     res.send(getAllItems)
 })
 
+router.get(`/:id`, async (req, res) => {
+    const isFalidId = isValidObjectId(req.params.id)
+    
+    if (!isFalidId) {
+        return res.status(500).json({
+            error: 'Invalid Id'
+        })
+    }
+
+    const getCategoryById = await Category.findById(req.params.id)
+
+    if (!getCategoryById) {
+        return res.status(404).json({
+            message: 'The category with the given number was not found'
+        })
+    }
+
+    res.status(200).send(getCategoryById)
+})
+
 router.post(`/`, async (req, res) => {
     const addCategory = Category({
         name: req.body.name,
