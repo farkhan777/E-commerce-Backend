@@ -15,7 +15,7 @@ router.get(`/`, async (req, res) => {
 })
 
 router.post(`/`, async (req, res) => {
-    const newItem = await new Product({
+    const newItem = new Product({
         name: req.body.name,
         image: req.body.image,
         countInStock: req.body.countInStock
