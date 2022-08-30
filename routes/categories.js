@@ -1,6 +1,5 @@
 const express = require('express')
 const { isValidObjectId } = require('mongoose')
-const category = require('../models/category')
 const router = express.Router()
 const Category = require("../models/category")
 
