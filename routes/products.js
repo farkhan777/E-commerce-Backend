@@ -1,4 +1,5 @@
 const express = require('express')
+const category = require('../models/category')
 const { count } = require('../models/category')
 const Category = require('../models/category')
 const router = express.Router()
@@ -14,6 +15,12 @@ router.get(`/`, async (req, res) => {
     const limit = Math.abs(req.query.limit) || DEFAULT_PAGE_LIMIT
     const skip = (page - 1) * limit
 
+    let filter = {}
+
+    if (req.query.categories) {
+        filter = {category: req.query.categories.split(',')};
+    }
+
     // You can use black list of item/product by using {}, {}
     // const getAllProduct = await Product.find({}, {
     //     "__v": false
@@ -22,7 +29,7 @@ router.get(`/`, async (req, res) => {
     // You can use white list of item/product by using select() method
     // const getAllProduct = await Product.find().select('name image -_id')
     // const getAllProduct = await Product.find().select('name image')
-    const getAllProduct = await Product.find()
+    const getAllProduct = await Product.find(filter)
     .sort({ dateCreated: 1 })
     .skip(skip)
     .limit(limit)
@@ -180,8 +187,9 @@ router.get('/get/count', async (req, res) => {
     })
 })
 
-router.get('/get/featured', async (req, res) => {
-    const featuredProduct = await Product.find({isFeatured: true})
+router.get('/get/featured/:count', async (req, res) => {
+    const count = req.params.count ? req.params.count : 0
+    const featuredProduct = await Product.find({isFeatured: true}).sort({ dateCreated: 1 }).limit(Math.abs(count))
 
     if(!featuredProduct) {
         return res.status(500).json({message: 'Can not count product'})
