@@ -1,5 +1,5 @@
 const express = require('express')
-const { isValidObjectId } = require('mongoose')
+const { isValidObjectId, default: mongoose } = require('mongoose')
 const router = express.Router()
 const Category = require("../models/category")
 
@@ -75,6 +75,7 @@ router.put(`/:id`, async (req, res) => {
 // router.delete(`/:id`, async (req, res) => {
 
 //     try{
+//         // const isFalidId = mongoose.isValidObjectId(req.params.id)
 //         const isFalidId = isValidObjectId(req.params.id)
 
 //         if (!isFalidId) {

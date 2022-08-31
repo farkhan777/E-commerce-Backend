@@ -1,4 +1,5 @@
 const express = require('express')
+const { count } = require('../models/category')
 const Category = require('../models/category')
 const router = express.Router()
 const Product = require('../models/product')
@@ -151,6 +152,18 @@ router.delete(`/:id`, (req, res) => {
             success: false,
             error: err
         })
+    })
+})
+
+router.get('/get/count', async (req, res) => {
+    const countProduct = await Product.countDocuments()
+
+    if(!countProduct) {
+        return res.status(500).json({message: 'Can not count product'})
+    }
+
+    res.send({
+        totalProduct: countProduct
     })
 })
 
