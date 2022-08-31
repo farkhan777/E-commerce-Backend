@@ -5,6 +5,8 @@ const cors = require('cors')
 const cluster = require('cluster')
 const os = require('os')
 require('dotenv/config')
+const authJwt = require('./helpers/jwt')
+const errorHandler = require('./helpers/error-handler')
 
 const app = express()
 const api = process.env.API_URL
@@ -15,17 +17,20 @@ app.options('*', cors())
 //Middleware
 app.use(express.json())
 app.use(morgan('combined'))
+app.use(authJwt())
+app.use(errorHandler)
 
+
+const usersRoutes = require('./routes/users')
 const categoriesRoutes = require('./routes/categories')
 const ordersRoutes = require('./routes/orders')
 const productsRoutes = require('./routes/products')
-const usersRoutes = require('./routes/users')
 
 //Router
+app.use(`${api}/users`, usersRoutes)
 app.use(`${api}/categories`, categoriesRoutes)
 app.use(`${api}/orders`, ordersRoutes)
 app.use(`${api}/products`, productsRoutes)
-app.use(`${api}/users`, usersRoutes)
 
 if(cluster.isMaster) {
     console.log('Master has been started')
@@ -41,7 +46,7 @@ if(cluster.isMaster) {
     .catch((err) => {
         console.log(err)
     })
-
+    
     app.listen(5000, () => {
         console.log(`Server is running on port 5000`)
     })

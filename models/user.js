@@ -40,6 +40,10 @@ const userSchema = mongoose.Schema({
     country: {
         type: String,
         default: ''
+    },
+    dateCreated: {
+        type: Date,
+        default: Date.now
     }
 })
 
