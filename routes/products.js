@@ -5,6 +5,15 @@ const router = express.Router()
 const Product = require('../models/product')
 
 router.get(`/`, async (req, res) => {
+
+    // Paginate
+    const DEFAULT_PAGE_NUMBER = 1
+    const DEFAULT_PAGE_LIMIT = 0
+
+    const page = Math.abs(req.query.page) || DEFAULT_PAGE_NUMBER
+    const limit = Math.abs(req.query.limit) || DEFAULT_PAGE_LIMIT
+    const skip = (page - 1) * limit
+
     // You can use black list of item/product by using {}, {}
     // const getAllProduct = await Product.find({}, {
     //     "__v": false
@@ -13,7 +22,11 @@ router.get(`/`, async (req, res) => {
     // You can use white list of item/product by using select() method
     // const getAllProduct = await Product.find().select('name image -_id')
     // const getAllProduct = await Product.find().select('name image')
-    const getAllProduct = await Product.find().populate('category')
+    const getAllProduct = await Product.find()
+    .sort({ dateCreated: 1 })
+    .skip(skip)
+    .limit(limit)
+    .populate('category')
 
     if (!getAllProduct) {
         res.status(500).json({
@@ -165,6 +178,16 @@ router.get('/get/count', async (req, res) => {
     res.send({
         totalProduct: countProduct
     })
+})
+
+router.get('/get/featured', async (req, res) => {
+    const featuredProduct = await Product.find({isFeatured: true})
+
+    if(!featuredProduct) {
+        return res.status(500).json({message: 'Can not count product'})
+    }
+
+    res.send(featuredProduct)
 })
 
 module.exports = router
