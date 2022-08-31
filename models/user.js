@@ -9,8 +9,12 @@ const userSchema = mongoose.Schema({
     }
 })
 
-const User = mongoose.model('User', userSchema)
+userSchema.virtual('id').get(function () {
+    return this._id.toHexString()
+})
 
-module.exports = {
-    User
-}
+userSchema.set('toJSON', {
+    virtuals: true
+})
+
+module.exports = mongoose.model('User', userSchema)

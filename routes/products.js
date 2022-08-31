@@ -29,7 +29,9 @@ router.get(`/`, async (req, res) => {
     // You can use white list of item/product by using select() method
     // const getAllProduct = await Product.find().select('name image -_id')
     // const getAllProduct = await Product.find().select('name image')
-    const getAllProduct = await Product.find(filter)
+    const getAllProduct = await Product.find(filter, {
+        "__v": false
+    })
     .sort({ dateCreated: 1 })
     .skip(skip)
     .limit(limit)
@@ -46,7 +48,7 @@ router.get(`/`, async (req, res) => {
 
 router.get(`/:id`, async (req, res) => {
     try {
-        const getOneProduct = await Product.findById(req.params.id).populate('category')
+        const getOneProduct = await Product.findById(req.params.id, {"__v": false}).populate('category')
         
         if(!getOneProduct) {
             return res.status(404).json({message: 'Product not found'})
@@ -188,8 +190,8 @@ router.get('/get/count', async (req, res) => {
 })
 
 router.get('/get/featured/:count', async (req, res) => {
-    const count = req.params.count ? req.params.count : 0
-    const featuredProduct = await Product.find({isFeatured: true}).sort({ dateCreated: 1 }).limit(Math.abs(count))
+    const count = req.params.count ? req.params.count: 0
+    const featuredProduct = await Product.find({isFeatured: true}, {"__v": false}).sort({ dateCreated: 1 }).limit(Math.abs(count))
 
     if(!featuredProduct) {
         return res.status(500).json({message: 'Can not count product'})

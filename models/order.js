@@ -4,8 +4,12 @@ const orderSchema = mongoose.Schema({
 
 })
 
-const Order = mongoose.model('Order', orderSchema)
+orderSchema.virtual('id').get(function () {
+    return this._id.toHexString()
+})
 
-module.exports = {
-    Order
-}
+orderSchema.set('toJSON', {
+    virtuals: true
+})
+
+module.exports = mongoose.model('Order', orderSchema)

@@ -4,7 +4,7 @@ const router = express.Router()
 const Category = require("../models/category")
 
 router.get(`/`, async (req, res) => {
-    const getAllItems = await Category.find()
+    const getAllItems = await Category.find({}, {"__v": false})
 
     if (!getAllItems) {
         res.status(500).json({
@@ -16,7 +16,7 @@ router.get(`/`, async (req, res) => {
 })
 
 router.get(`/:id`, async (req, res) => {
-    const getCategoryById = await Category.findById(req.params.id)
+    const getCategoryById = await Category.findById(req.params.id, {"__v": false})
 
     if (!getCategoryById) {
         return res.status(404).json({
