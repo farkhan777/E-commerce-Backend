@@ -1,9 +1,35 @@
 const express = require('express')
-const category = require('../models/category')
-const { count } = require('../models/category')
 const Category = require('../models/category')
 const router = express.Router()
 const Product = require('../models/product')
+const fs = require('fs')
+const  multer = require('multer')
+
+const FILE_TYPE_MAP = {
+    'image/png': 'png',
+    'image/jpeg': 'jpeg',
+    'image/jpg': 'jpg'
+}
+
+// image upload
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const isValid = FILE_TYPE_MAP[file.mimetype]
+        let uploadError = new Error('Invalid image type')
+
+        if (isValid) {
+            uploadError = null
+        }
+        cb(uploadError, 'public/uploads')
+    },
+    filename: function (req, file, cb) {
+        const extention = FILE_TYPE_MAP[file.mimetype]
+        // const fileName = file.originalname.replace(' ', '-')
+        const fileName = file.originalname.split(' ').join('-')
+        cb(null, `${fileName}-${Date.now()}.${extention}`)
+    }
+})
+const uploadOptions = multer({ storage: storage })
 
 router.get(`/`, async (req, res) => {
 
@@ -63,7 +89,7 @@ router.get(`/:id`, async (req, res) => {
 
 })
 
-router.post(`/`, async (req, res) => {
+router.post(`/`, uploadOptions.single('image') , async (req, res) => {
     try {
         const checkExistCategory = await Category.findById(req.body.category)
         if (!checkExistCategory) return res.status(404).json({message: 'Category not found'})
@@ -72,13 +98,22 @@ router.post(`/`, async (req, res) => {
             message: 'Invalid id category'
         })
     }
+
+    const checkIfTheIsFile = req.file
+    if (!checkIfTheIsFile) {
+        return res.status(404).json({message: 'Image does not exist'})
+    }
+
+    // image upload
+    const fileName = req.file.filename
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
     
 
     const newProduct = new Product({
         name: req.body.name,
         description: req.body.description,
         richDescription: req.body.richDescription,
-        image: req.body.image,
+        image: `${basePath}${fileName}`, // "http://localhost:5000/public/uploads/image-12345"
         brand: req.body.brand,
         price: req.body.price,
         category: req.body.category,
@@ -99,7 +134,7 @@ router.post(`/`, async (req, res) => {
         // }
 
     try {    
-        await newProduct.save()
+        await newProduct.save('')
     
         if (!newProduct) {
             return res.status(500).json({message: 'The product can not be saved'})
@@ -120,16 +155,43 @@ router.post(`/`, async (req, res) => {
     // })
 })
 
-router.put(`/:id`, async (req, res) => {
+router.put(`/:id`, uploadOptions.single('image'), async (req, res) => {
     try {
         const checkExistCategory = await Category.findById(req.body.category)
         if (!checkExistCategory) return res.status(404).json({message: 'Category not found'})
+
+        const checkExistProduck = await Product.findById(req.params.id)
+        if(!checkExistProduck) return res.status(400).json({message: 'Invalid product'})
+
+        let imagepath
+
+        if (req.file) {
+            const filePath = './public/uploads'
+            const splittedFile = checkExistProduck.image.split('/')
+            // console.log(`${filePath}/${splittedFile[splittedFile.length - 1]}`)
+            fs.unlink(`${filePath}/${splittedFile[splittedFile.length - 1]}`, function(err) {
+                if(err && err.code == 'ENOENT') {
+                    // file doens't exist
+                    console.info("File doesn't exist, won't remove it.");
+                } else if (err) {
+                    // other errors, e.g. maybe we don't have enough permission
+                    console.error("Error occurred while trying to remove file");
+                } else {
+                    console.info(`removed`);
+                }
+            })
+            const fileName = req.file.filename
+            const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
+            imagepath = `${basePath}${fileName}`
+        } else {
+            imagepath = checkExistProduck.image
+        }
 
         const updateProduct = await Product.findByIdAndUpdate(req.params.id,{
             name: req.body.name,
             description: req.body.description,
             richDescription: req.body.richDescription,
-            image: req.body.image,
+            image: imagepath,
             brand: req.body.brand,
             price: req.body.price,
             category: req.body.category,
@@ -150,7 +212,7 @@ router.put(`/:id`, async (req, res) => {
         res.send(updateProduct)
     } catch(err) {
         return res.status(500).json({
-            message: 'Invalid id category'
+            message: err
         })
     }
 })
