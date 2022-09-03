@@ -17,3 +17,7 @@
 1. Ensure you have the latest version of Docker installed
 2. Run `docker build -t e-commerce-project .`
 3. Run `docker run -it -p 5000:5000 e-commerce-project`
+4. Post file in `{BASE_URL/api/v1/products}` does not work because `requested access to the resource is denied` so follow these steps bellow
+5. Run `docker exec --user root -it yourContainerId //bin//sh` to go to docker container that has been running
+6. Run `ls -all` to make sure that there is a `public` folder right there
+7. Run `chmod -R 777 public`. But people say that it is not recommended to change to `777`
