@@ -217,6 +217,42 @@ router.put(`/:id`, uploadOptions.single('image'), async (req, res) => {
     }
 })
 
+router.put('/gallery-images/:id', uploadOptions.array('images', 10), async (req, res) => {
+    try {
+        const checkExistProduck = await Product.findById(req.params.id)
+        if(!checkExistProduck) return res.status(400).json({message: 'Invalid product'})
+
+        let imagesPaths = []
+        const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
+
+        if (req.files) {
+            console.log(checkExistProduck.images)
+            req.files.map(file => {
+                imagesPaths.push(`${basePath}${file.filename}`)
+            })
+        }
+
+        const updateProduct = await Product.findByIdAndUpdate(req.params.id,{
+            images: imagesPaths,
+        }, {
+            new: true
+        })
+
+        if (!updateProduct) {
+            return res.status(500).json({
+                message: 'Product can not be updated'
+            })
+        }
+    
+        res.send(updateProduct)
+
+    } catch(err) {
+        return res.status(500).json({
+            message: err
+        })
+    }
+})
+
 router.delete(`/:id`, (req, res) => {
     // Both findByIdAndRemove & findByIdAndDelete of them are almost similar except findOneAndRemove uses findAndModify with remove flag and time complexity will be a bit higher compare to findOneAndDelete because you are doing an update. Delete are always faster.
     Product.findByIdAndDelete(req.params.id).then((product) => {
