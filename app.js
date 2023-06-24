@@ -40,6 +40,7 @@ if(cluster.isMaster) {
         cluster.fork();
     }
 } else {
+    mongoose.set("strictQuery", false);
     mongoose.connect(process.env.MONGO_DB_URL)
     .then(() => {
         console.log('MongoDB connection ready!')
