@@ -33,24 +33,24 @@ app.use(`${api}/categories`, categoriesRoutes)
 app.use(`${api}/orders`, ordersRoutes)
 app.use(`${api}/products`, productsRoutes)
 
-if(cluster.isMaster) {
-    console.log('Master has been started')
-    const NUM_WORKERS = os.cpus().length;
-    for (let i = 0; i < NUM_WORKERS; i++) {
-        cluster.fork();
-    }
-} else {
-    mongoose.set("strictQuery", false);
-    mongoose.connect(process.env.MONGO_DB_URL)
-    .then(() => {
-        console.log('MongoDB connection ready!')
-    })
-    .catch((err) => {
-        console.log(err)
-    })
-    
-    app.listen(5000, () => {
-        console.log(`Server is running on port 5000`)
-    })
-}
+mongoose.set("strictQuery", false);
+mongoose.connect(process.env.MONGO_DB_URL)
+.then(() => {
+    console.log('MongoDB connection ready!')
+})
+.catch((err) => {
+    console.log(err)
+})
+
+app.listen(5000, () => {
+    console.log(`Server is running on port 5000`)
+})
+// if(cluster.isMaster) {
+//     console.log('Master has been started')
+//     const NUM_WORKERS = os.cpus().length;
+//     for (let i = 0; i < NUM_WORKERS; i++) {
+//         cluster.fork();
+//     }
+// } else {
+// }
 
