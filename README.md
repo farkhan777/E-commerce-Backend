@@ -1,5 +1,8 @@
 # E commerce API Project
 
+## E-shop App API Project Docummentation using Postman
+https://documenter.getpostman.com/view/21759373/2s93z6d48a
+
 ## Getting Started
 
 1. Ensure you have Node.js installed.
